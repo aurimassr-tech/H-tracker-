@@ -1,0 +1,15 @@
+{
+  "name": "My Holiday Tracker",
+  "short_name": "Holidays",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f7f5",
+  "theme_color": "#173b32",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
