@@ -1,4 +1,4 @@
-const CACHE = 'holiday-tracker-v1';
+const CACHE = 'holiday-tracker-v2';
 
 self.addEventListener('install', event => {
   event.waitUntil(
