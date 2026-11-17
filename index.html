@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173b32">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>My Holiday Tracker</title>
+<style>
+:root{--green:#173b32;--green2:#24624f;--mint:#e8f2ed;--bg:#f5f7f5;--ink:#1d2924;--muted:#68766f;--line:#e1e8e3;--white:#fff;--red:#a33b36}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:var(--green);color:white;padding:24px 18px 28px;border-radius:0 0 24px 24px}
+.wrap{max-width:620px;margin:auto;padding:0 16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font-size:22px;margin:0;font-weight:750}header p{margin:6px 0 0;color:#d5e6dd;font-size:13px}
+.year{background:#ffffff20;border:1px solid #ffffff40;color:white;border-radius:12px;padding:8px 10px;font-weight:700}
+main{padding:18px 0 36px}
+.balance{background:white;border-radius:20px;padding:20px;box-shadow:0 5px 22px #163b3210}
+.eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.big{font-size:42px;line-height:1.1;font-weight:800;color:var(--green);margin:7px 0}
+.progress{height:10px;background:#e8eee9;border-radius:99px;overflow:hidden;margin:14px 0 8px}
+.fill{height:100%;width:0;background:#39936f;border-radius:99px;transition:width .2s}
+.small{font-size:13px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:13px}
+.stat{background:#f4f7f4;border-radius:14px;padding:13px 10px}
+.stat strong{display:block;font-size:22px}.stat span{font-size:11px;color:var(--muted)}
+.card{background:white;border-radius:18px;padding:18px;margin-top:14px;box-shadow:0 3px 16px #163b3208}
+h2{font-size:17px;margin:0 0 13px}
+.next{display:flex;align-items:center;gap:12px}
+.cal{background:var(--mint);color:var(--green);border-radius:12px;padding:10px;text-align:center;min-width:54px;font-weight:800}
+.cal small{display:block;font-size:10px;text-transform:uppercase}
+.nextinfo{flex:1;min-width:0}.nextinfo strong{display:block}.nextinfo span{font-size:13px;color:var(--muted)}
+button{border:0;border-radius:12px;padding:12px 15px;background:var(--green);color:white;font-weight:700;font-size:14px;cursor:pointer}
+button.secondary{background:#edf3ef;color:var(--green)}button.danger{background:#fff0ef;color:var(--red);padding:8px 10px}
+button:active{transform:scale(.98)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+label{display:block;font-size:13px;color:var(--muted);font-weight:650;margin:11px 0 5px}
+input,select{width:100%;border:1px solid #dce5de;background:white;border-radius:11px;padding:12px;font:inherit;color:var(--ink)}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.formgrid .full{grid-column:1/-1}
+.list{display:flex;flex-direction:column;gap:9px}
+.item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}.itemmain{flex:1;min-width:0}.itemmain strong{display:block}.itemmain span{font-size:12px;color:var(--muted)}
+.days{font-size:13px;font-weight:750;background:var(--mint);color:var(--green);padding:6px 9px;border-radius:9px;white-space:nowrap}
+.empty{color:var(--muted);font-size:14px;padding:10px 0}
+details summary{cursor:pointer;font-weight:700;font-size:14px}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#1d2924;color:white;padding:11px 16px;border-radius:12px;display:none;font-size:13px;max-width:90%;z-index:5}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
+@media(max-width:390px){.stats{gap:6px}.stat{padding:11px 7px}.stat strong{font-size:19px}.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top"><div><h1>My Holiday Tracker ☀️</h1><p>Your time off, all in one place</p></div><select class="year" id="yearSelect" aria-label="Holiday year"></select></div>
+</div></header>
+<main class="wrap">
+  <section class="balance">
+    <div class="eyebrow">Holiday remaining</div>
+    <div class="big" id="remaining">33 days</div>
+    <div class="progress"><div class="fill" id="progress"></div></div>
+    <div class="small" id="progressText">0 of 33 days used</div>
+    <div class="stats">
+      <div class="stat"><strong id="allowanceStat">33</strong><span>Allowance</span></div>
+      <div class="stat"><strong id="usedStat">0</strong><span>Days used</span></div>
+      <div class="stat"><strong id="leftStat">33</strong><span>Days left</span></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Next holiday</h2>
+    <div id="nextHoliday" class="empty">No upcoming holidays booked yet.</div>
+  </section>
+  <section class="card" id="addCard">
+    <h2 id="formTitle">Add a holiday</h2>
+    <form id="holidayForm">
+      <div class="formgrid">
+        <div class="full"><label for="holidayName">What would you like to call it?</label><input id="holidayName" maxlength="50" placeholder="e.g. Summer holiday" required></div>
+        <div><label for="startDate">First day off</label><input type="date" id="startDate" required></div>
+        <div><label for="endDate">Last day off</label><input type="date" id="endDate" required></div>
+      </div>
+      <div class="actions" style="margin-top:14px"><button type="submit" id="saveBtn">Add holiday</button><button type="button" class="secondary" id="cancelEdit" hidden>Cancel</button></div>
+      <p class="note">Counts Monday–Friday only, and skips the bank holiday dates listed below. A booking can span weekends and bank holidays without using those days from your allowance.</p>
+    </form>
+  </section>
+  <section class="card">
+    <h2>Booked holidays</h2>
+    <div id="holidayList" class="list"><div class="empty">No holidays added yet.</div></div>
+  </section>
+  <section class="card">
+    <details>
+      <summary>Allowance & bank holidays</summary>
+      <label for="allowance">Annual allowance (days)</label>
+      <input type="number" id="allowance" min="0" max="366" step="0.5" value="33">
+      <label for="bankDates">Bank holidays (one date per line, YYYY-MM-DD)</label>
+      <textarea id="bankDates" rows="8" style="width:100%;border:1px solid #dce5de;border-radius:11px;padding:12px;font:14px ui-monospace,monospace"></textarea>
+      <div class="actions" style="margin-top:10px"><button id="saveSettings" type="button">Save settings</button><button id="resetYear" type="button" class="secondary">Clear this year's bookings</button></div>
+      <p class="note">The list starts with England and Wales bank holidays for 2026–2027. Check and update it for your workplace and future years. Bank holidays are excluded only when their dates are in this list.</p>
+    </details>
+  </section>
+  <footer>Private to this browser on this device. Your entries are saved locally.</footer>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const $ = id => document.getElementById(id);
+const KEY='myHolidayTracker_v1';
+const defaultBanks=[
+'2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-08-31','2026-12-25','2026-12-28',
+'2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-08-30','2027-12-27','2027-12-28'
+];
+let data=load(), editingId=null;
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{allowance:33,holidays:[],bankDates:defaultBanks}}catch(e){return {allowance:33,holidays:[],bankDates:defaultBanks}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function dateObj(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function fmt(s){return dateObj(s).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}
+function dayCount(start,end){
+ if(!start||!end||end<start)return 0;
+ const banks=new Set(data.bankDates);
+ let n=0,d=dateObj(start),last=dateObj(end);
+ while(d<=last){const iso=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+ if(d.getDay()!==0&&d.getDay()!==6&&!banks.has(iso))n++;
+ d.setDate(d.getDate()+1);
+ }return n;
+}
+function currentYear(){return Number($('yearSelect').value)||new Date().getFullYear()}
+function yearHolidays(){const y=currentYear();return data.holidays.filter(h=>dateObj(h.start).getFullYear()===y || dateObj(h.end).getFullYear()===y)}
+function usedDays(){return yearHolidays().reduce((s,h)=>s+dayCount(h.start,h.end),0)}
+function toast(msg){$('toast').textContent=msg;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2300)}
+function render(){
+ const y=currentYear(), hs=yearHolidays().sort((a,b)=>a.start.localeCompare(b.start)), used=usedDays(), left=data.allowance-used;
+ $('allowanceStat').textContent=data.allowance;$('usedStat').textContent=used;$('leftStat').textContent=left;
+ $('remaining').textContent=(left<0?left: Number.isInteger(left)?left:left.toFixed(1))+' days';
+ $('progress').style.width=Math.min(100,data.allowance?used/data.allowance*100:0)+'%';
+ $('progressText').textContent=`${used} of ${data.allowance} days used`;
+ const today=new Date();today.setHours(0,0,0,0);
+ const upcoming=data.holidays.filter(h=>dateObj(h.end)>=today).sort((a,b)=>a.start.localeCompare(b.start))[0];
+ if(!upcoming){$('nextHoliday').innerHTML='<div class="empty">No upcoming holidays booked yet.</div>'}
+ else {$('nextHoliday').innerHTML=`<div class="next"><div class="cal"><small>${dateObj(upcoming.start).toLocaleDateString('en-GB',{month:'short'})}</small>${dateObj(upcoming.start).getDate()}</div><div class="nextinfo"><strong>${escapeHtml(upcoming.name)}</strong><span>${fmt(upcoming.start)}${upcoming.end!==upcoming.start?' – '+fmt(upcoming.end):''} · ${dayCount(upcoming.start,upcoming.end)} working days</span></div></div>`}
+ $('holidayList').innerHTML=hs.length?hs.map(h=>`<div class="item"><div class="itemmain"><strong>${escapeHtml(h.name)}</strong><span>${fmt(h.start)}${h.end!==h.start?' – '+fmt(h.end):''}</span></div><div class="days">${dayCount(h.start,h.end)} days</div><button class="secondary" onclick="editHoliday('${h.id}')">Edit</button><button class="danger" onclick="deleteHoliday('${h.id}')">×</button></div>`).join(''):'<div class="empty">No holidays booked for this year yet.</div>';
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function resetForm(){editingId=null;$('holidayForm').reset();$('formTitle').textContent='Add a holiday';$('saveBtn').textContent='Add holiday';$('cancelEdit').hidden=true}
+$('holidayForm').addEventListener('submit',e=>{
+ e.preventDefault();const name=$('holidayName').value.trim(),start=$('startDate').value,end=$('endDate').value;
+ if(end<start){toast('The last day must be on or after the first day.');return}
+ if(!dayCount(start,end)){toast('That date range contains no working days to book.');return}
+ const item={id:editingId||String(Date.now()),name,start,end};
+ if(editingId)data.holidays=data.holidays.map(h=>h.id===editingId?item:h);else data.holidays.push(item);
+ save();resetForm();render();toast('Holiday saved!');
+});
+window.editHoliday=id=>{const h=data.holidays.find(x=>x.id===id);if(!h)return;editingId=id;$('holidayName').value=h.name;$('startDate').value=h.start;$('endDate').value=h.end;$('formTitle').textContent='Edit holiday';$('saveBtn').textContent='Save changes';$('cancelEdit').hidden=false;$('addCard').scrollIntoView({behavior:'smooth'})};
+window.deleteHoliday=id=>{if(!confirm('Delete this holiday booking?'))return;data.holidays=data.holidays.filter(h=>h.id!==id);save();render();toast('Booking deleted.')};
+$('cancelEdit').onclick=resetForm;
+$('saveSettings').onclick=()=>{const n=Number($('allowance').value);if(!Number.isFinite(n)||n<0){toast('Enter a valid allowance.');return}data.allowance=n;data.bankDates=[...new Set($('bankDates').value.split(/\s+/).map(x=>x.trim()).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)))];save();render();toast('Settings saved.')};
+$('resetYear').onclick=()=>{const y=currentYear();if(!confirm(`Delete all bookings that start in ${y}? This cannot be undone.`))return;data.holidays=data.holidays.filter(h=>dateObj(h.start).getFullYear()!==y);save();render();toast('This year’s bookings cleared.')};
+const years=Array.from({length:7},(_,i)=>new Date().getFullYear()-2+i);
+$('yearSelect').innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');
+$('yearSelect').value=String(new Date().getFullYear());$('yearSelect').onchange=render;
+$('allowance').value=data.allowance;$('bankDates').value=data.bankDates.join('\n');
+render();
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {})); }
+</script>
+</body></html>
